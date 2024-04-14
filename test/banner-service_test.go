@@ -45,7 +45,4 @@ func TestBanner_HappyPath(t *testing.T) {
 		ContainsKey("id")
 }
 
-
-
 //nolint:funlen
-
