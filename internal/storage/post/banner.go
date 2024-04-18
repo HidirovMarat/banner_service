@@ -241,26 +241,78 @@ func makeArgs(feature_id *int64, tag_id *int64, offset, limit *int) pgx.NamedArg
 	return pgx.NamedArgs{}
 }
 
-/*
-func (pg *postgres) PatchBanner(ctx context.Context, id int64, bannner entity.Banner) (bool, error){
-	checkId, err := pg.CheckContentExists(ctx, id)
+func (pg *postgres) PatchBanner(ctx context.Context, id int64, tag_ids []int64, feature_id *int64, is_active *bool, content *entity.Content) (bool, error) {
+
+	banner, err := pg.GetBannerById(ctx, id)
 
 	if err != nil {
-		return false, fmt.Errorf("unable to get content: %w", err)
+		return false, err
 	}
 
-	if !checkId {
-		return false, nil
+	if tag_ids != nil {
+		banner.Tag_ids = tag_ids
 	}
 
-	args := ` UPDATE banner Set`
+	if feature_id != nil {
+		banner.Feature_id = *feature_id
+	}
 
-	if
+	if is_active != nil {
+		banner.Is_active = *is_active
+	}
 
-	WHERE id = @id;
+	if content != nil {
+		banner.Content = *content
+	}
 
+	query := `
+	UPDATE Products
+	SET 
+	feature_id = @feature_id, tag_ids = @tag_ids, is_active = @is_active, title = @title, text = @text, url = @url, created_at = @created_at, update_at = @update_at 
+	WHERE id = '@id';`
+
+	args := pgx.NamedArgs{
+		"feature_id": banner.Feature_id,
+		"tag_ids":    banner.Tag_ids,
+		"is_active":  banner.Is_active,
+		"title":      banner.Content.Title,
+		"text":       banner.Content.Text,
+		"url":        banner.Content.Url,
+		"created_at": banner.Created_at,
+		"update_at":  banner.Updated_at,
+	}
+
+	_, err = pg.db.Exec(ctx, query, args)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
+func (pg *postgres) GetBannerById(ctx context.Context, id int64) (*entity.Banner, error) {
+	query := `select * from banners where id = @id`
 
+	args := pgx.NamedArgs{
+		"id": id,
+	}
 
-*/
+	rows, err := pg.db.Query(ctx, query, args)
+	if err != nil {
+		return &entity.Banner{}, fmt.Errorf("unable to query bannerId: %w", err)
+	}
+
+	defer rows.Close()
+	d, err := pgx.CollectRows(rows, pgx.RowToStructByName[entity.Banner])
+
+	if len(d) < 1 {
+		return &entity.Banner{}, storage.ErrBannerNotFound
+	}
+
+	if err != nil {
+		return &entity.Banner{}, fmt.Errorf("unable to query bannerId: %w", err)
+	}
+
+	return &d[0], err
+}
