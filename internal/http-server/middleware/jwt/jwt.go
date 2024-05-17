@@ -40,9 +40,10 @@ func New(signingKey string) func(next http.Handler) http.Handler {
 				w.Write([]byte("Отсутствует или неверный token"))
 				return
 			}
-			var ctx context.Context
+
+			//var ctx context.Context
 			if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid && (time.Now().Before(time.Unix(claims.ExpiresAt, 0))) {
-				ctx = context.WithValue(r.Context(), "accessLever", claims.Subject)
+				ctx := context.WithValue(r.Context(), "accessLever", claims.Subject)
 				next.ServeHTTP(w, r.WithContext(ctx))
 			} else {
 				w.WriteHeader(http.StatusUnauthorized)

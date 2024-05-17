@@ -30,7 +30,7 @@ type Response struct {
 	Id int64 `json:"id,omitempty"`
 }
 
-//go:generate go run github.com/vektra/mockery/v2@v2.28.2 --name=BannerCreate
+//go:generate go run github.com/vektra/mockery/v2@v2.42.2 --name=BannerCreate
 type BannerCreate interface {
 	CreateBanner(ctx context.Context, feature_id int64, tag_ids []int64, is_active bool, content entity.Content) (int64, error)
 }
@@ -48,7 +48,7 @@ func New(context context.Context, log *slog.Logger, bannerCreate BannerCreate) h
 
 		if accessLevel != post.Admin {
 			http.Error(w, "Пользователь не имеет доступа", http.StatusForbidden)
-			return
+			return 
 		}
 
 		var req Request

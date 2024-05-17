@@ -11,7 +11,7 @@ import (
 	//	"github.com/stretchr/testify/require"
 	"banner-service/internal/entity"
 
-	"banner-service/internal/htttp-server/handlers/banner/create"
+	"banner-service/internal/http-server/handlers/banner/create"
 	//	"banner-service/internal/lig/api"
 	//"banner-service/internal/lib/random"
 )

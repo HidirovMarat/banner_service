@@ -8,14 +8,14 @@ import (
 	"net/http"
 	"os"
 
-	"banner-service/internal/htttp-server/handlers/banner/create"
-	"banner-service/internal/htttp-server/handlers/banner/delete"
-	bGet "banner-service/internal/htttp-server/handlers/banner/get"
-	cGet "banner-service/internal/htttp-server/handlers/content/get"
-	aGet "banner-service/internal/htttp-server/handlers/user/get"
-	mwLogger "banner-service/internal/htttp-server/middleware/logger"
+	"banner-service/internal/http-server/handlers/banner/create"
+	"banner-service/internal/http-server/handlers/banner/delete"
+	bGet "banner-service/internal/http-server/handlers/banner/get"
+	cGet "banner-service/internal/http-server/handlers/content/get"
+	aGet "banner-service/internal/http-server/handlers/user/get"
+	mwLogger "banner-service/internal/http-server/middleware/logger"
 
-	"banner-service/internal/htttp-server/middleware/jwt"
+	"banner-service/internal/http-server/middleware/jwt"
 	"banner-service/internal/storage/post"
 
 	"github.com/go-chi/chi/v5"
@@ -46,6 +46,10 @@ func main() {
 	context := context.Background()
 	storage, _ := post.NewPG(context, cfg.StoragePath)
 	router := chi.NewRouter()
+
+	if storage == nil {
+		panic("storage")
+	}
 
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Logger)
